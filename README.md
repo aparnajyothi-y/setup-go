@@ -24,27 +24,6 @@ The V5 edition of the action offers:
 
 See full release notes on the [releases page](https://github.com/actions/setup-go/releases).
 
-# V4
-
-The V4 edition of the action offers:
-
- - Enabled caching by default
-
-The action will try to enable caching unless the `cache` input is explicitly set to false.
-
-Please see "[Caching dependency files and build outputs](https://github.com/actions/setup-go#caching-dependency-files-and-build-outputs)" for more information.
-
-# V3
-
-The V3 edition of the action offers:
-
-- Adds `GOBIN` to the `PATH`
-- Proxy support
-- Check latest version
-- Caching packages dependencies
-- stable and oldstable aliases
-- Bug Fixes (including issues around version matching and semver)
-
 The action will first check the local cache for a version match. If a version is not found locally, it will pull it from
 the `main` branch of the [go-versions](https://github.com/actions/go-versions/blob/main/versions-manifest.json)
 repository. On miss or failure, it will fall back to downloading directly
