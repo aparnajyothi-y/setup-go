@@ -196,9 +196,9 @@ jobs:
             ${{ runner.os }}-node-
       # Setup Node.js
       - name: Setup Node.js
-        uses: actions/setup-node@v6
+        uses: actions/setup-go@v6
         with:
-          node-version: '24'
+          go-version: '1.21'
       # Install dependencies
       - run: npm install
 ```
