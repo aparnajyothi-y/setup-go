@@ -176,6 +176,35 @@ steps:
   - run: go run hello.go
   ```
 
+**Restore-Only Cache**
+
+```yaml
+## In some workflows, you may want to restore a cache without saving it. This can help reduce cache writes and storage usage in workflows that only need to read from cache
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      # Restore Node.js modules cache (restore-only)
+      - name: Restore Node modules cache
+        uses: actions/cache@v4
+        id: cache-node-modules
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+      # Setup Node.js
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: '24'
+      # Install dependencies
+      - run: npm install
+```
+
+> For more details related to cache scenarios, please refer [Node – npm](https://github.com/actions/cache/blob/main/examples.md#node---npm).
+
 ## Getting go version from the go.mod file
 
 The `go-version-file` input accepts a path to a `go.mod` file, `.tool-versions` file or a `go.work`
