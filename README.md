@@ -188,14 +188,12 @@ jobs:
 
       # Restore Go module cache (restore-only)
       - name: Restore Go modules cache (restore-only)
-        uses: actions/cache/restore@v4
-        id: cache-go-modules
+      - uses: actions/cache/restore@v4
+        id: cache
         with:
-          path: |
-            ~/go/pkg/mod           # Module download cache
-            ~/.cache/go-build      # Build cache
-          key: go-cache-${{ runner.os }}-${{ runner.arch }}-go-${{ hashFiles('**/go.sum') }}
-          restore-keys: |
+        path: path/to/dependencies
+        key: go-cache-${{ runner.os }}-${{ runner.arch }}-go-${{ hashFiles('**/go.sum') }}
+        restore-keys: |
             go-cache-${{ runner.os }}-${{ runner.arch }}-go-
 
       # Set up Go
@@ -213,7 +211,7 @@ jobs:
         run: go build ./...
 ```
 
-> For more details related to cache scenarios, please refer [Node – npm](https://github.com/actions/cache/blob/main/examples.md#node---npm).
+> For more details related to cache scenarios, please refer [cache-restore](https://github.com/actions/cache/tree/main/restore#only-restore-cache.
 
 ## Getting go version from the go.mod file
 
