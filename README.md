@@ -185,22 +185,32 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
-      # Restore Node.js modules cache (restore-only)
-      - name: Restore Node modules cache
-        uses: actions/cache@v4
-        id: cache-node-modules
+
+      # Restore Go module cache (restore-only)
+      - name: Restore Go modules cache (restore-only)
+        uses: actions/cache/restore@v4
+        id: cache-go-modules
         with:
-          path: ~/.npm
-          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          path: |
+            ~/go/pkg/mod           # Module download cache
+            ~/.cache/go-build      # Build cache
+          key: go-cache-${{ runner.os }}-${{ runner.arch }}-go-${{ hashFiles('**/go.sum') }}
           restore-keys: |
-            ${{ runner.os }}-node-
-      # Setup Node.js
-      - name: Setup Node.js
+            go-cache-${{ runner.os }}-${{ runner.arch }}-go-
+
+      # Set up Go
+      - name: Set up Go
         uses: actions/setup-go@v6
         with:
           go-version: '1.21'
-      # Install dependencies
-      - run: npm install
+
+      # Download dependencies
+      - name: Download Go modules
+        run: go mod download
+
+      # Build
+      - name: Build
+        run: go build ./...
 ```
 
 > For more details related to cache scenarios, please refer [Node – npm](https://github.com/actions/cache/blob/main/examples.md#node---npm).
