@@ -186,27 +186,26 @@ jobs:
     steps:
       - uses: actions/checkout@v5
 
-      # Restore Go module cache (restore-only)
-      - name: Restore Go modules cache (restore-only)
-      - uses: actions/cache/restore@v4
-        id: cache
-        with:
-        path: path/to/dependencies
-        key: go-cache-${{ runner.os }}-${{ runner.arch }}-go-${{ hashFiles('**/go.sum') }}
-        restore-keys: |
-            go-cache-${{ runner.os }}-${{ runner.arch }}-go-
-
-      # Set up Go
-      - name: Set up Go
+      - name: Setup Go
         uses: actions/setup-go@v6
         with:
           go-version: '1.21'
+          cache: false
 
-      # Download dependencies
-      - name: Download Go modules
+      - name: Restore Go cache
+        uses: actions/cache/restore@v4
+        id: go-cache
+        with:
+          path: |
+            $GOMODCACHE
+            $GOCACHE
+          key: setup-go-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            setup-go-${{ runner.os }}-
+
+      - name: Download modules
         run: go mod download
 
-      # Build
       - name: Build
         run: go build ./...
 ```
