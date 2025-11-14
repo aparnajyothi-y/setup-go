@@ -176,6 +176,42 @@ steps:
   - run: go run hello.go
   ```
 
+**Restore-Only Cache**
+
+```yaml
+## In some workflows, you may want to restore a cache without saving it. This can help reduce cache writes and storage usage in workflows that only need to read from cache
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Setup Go
+        uses: actions/setup-go@v6
+        with:
+          go-version: '1.21'
+          cache: false
+
+      - name: Restore Go cache
+        uses: actions/cache/restore@v4
+        id: go-cache
+        with:
+          path: |
+            $GOMODCACHE
+            $GOCACHE
+          key: setup-go-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            setup-go-${{ runner.os }}-
+
+      - name: Download modules
+        run: go mod download
+
+      - name: Build
+        run: go build ./...
+```
+
+> For more details related to cache scenarios, please refer [cache-restore](https://github.com/actions/cache/tree/main/restore#only-restore-cache.
+
 ## Getting go version from the go.mod file
 
 The `go-version-file` input accepts a path to a `go.mod` file, `.tool-versions` file or a `go.work`
