@@ -182,26 +182,58 @@ steps:
 ## In some workflows, you may want to restore a cache without saving it. This can help reduce cache writes and storage usage in workflows that only need to read from cache
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+
     steps:
       - uses: actions/checkout@v5
 
       - name: Setup Go
+        id: setup-go
         uses: actions/setup-go@v6
         with:
-          go-version: '1.21'
+          go-version: '1.24'
           cache: false
 
+      - name: Set Go cache variables (Linux/macOS)
+        if: runner.os != 'Windows'
+        run: |
+          echo "GO_MOD_CACHE=$(go env GOMODCACHE)" >> $GITHUB_ENV
+          echo "GO_BUILD_CACHE=$(go env GOCACHE)" >> $GITHUB_ENV
+      - name: Set Go cache variables (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          echo "GO_MOD_CACHE=$(go env GOMODCACHE)" | Out-File $env:GITHUB_ENV -Append
+          echo "GO_BUILD_CACHE=$(go env GOCACHE)"   | Out-File $env:GITHUB_ENV -Append
+      - name: Save lowercase arch (POSIX)
+        if: runner.os != 'Windows'
+        run: echo "ARCH=$(echo '${{ runner.arch }}' | tr '[:upper:]' '[:lower:]')" >> $GITHUB_ENV
+
+      - name: Save lowercase arch (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          $arch = "${{ runner.arch }}".ToLower()
+          echo "ARCH=$arch" | Out-File $env:GITHUB_ENV -Append
+      - name: Set cache OS suffix (Ubuntu only)
+        if: runner.os == 'Linux'
+        run: echo "CACHE_OS_SUFFIX=$ImageOS-" >> $GITHUB_ENV
+
+      - name: Set cache OS suffix (macOS/Windows)
+        if: runner.os != 'Linux'
+        run: echo "CACHE_OS_SUFFIX=" >> $GITHUB_ENV
+
       - name: Restore Go cache
-        uses: actions/cache/restore@v4
         id: go-cache
+        uses: actions/cache/restore@v4
         with:
           path: |
-            $GOMODCACHE
-            $GOCACHE
-          key: setup-go-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('**/go.sum') }}
-          restore-keys: |
-            setup-go-${{ runner.os }}-
+            ${{ env.GO_MOD_CACHE }}
+            ${{ env.GO_BUILD_CACHE }}
+          key: setup-go-${{ runner.os }}-${{ env.ARCH }}-${{ env.CACHE_OS_SUFFIX }}go-${{ steps.setup-go.outputs.go-version }}-${{ hashFiles('**/go.sum') }}
 
       - name: Download modules
         run: go mod download
