@@ -222,10 +222,6 @@ jobs:
         if: runner.os == 'Linux'
         run: echo "CACHE_OS_SUFFIX=$ImageOS-" >> $GITHUB_ENV
 
-      - name: Set cache OS suffix (macOS/Windows)
-        if: runner.os != 'Linux'
-        run: echo "CACHE_OS_SUFFIX=" >> $GITHUB_ENV
-
       - name: Restore Go cache
         id: go-cache
         uses: actions/cache/restore@v4
@@ -242,7 +238,9 @@ jobs:
         run: go build ./...
 ```
 
-> For more details related to cache scenarios, please refer [cache-restore](https://github.com/actions/cache/tree/main/restore#only-restore-cache.
+> If there are several builds on the same repo it might make sense to create a cache in one build and use it in the
+others. The action [actions/cache/restore](https://github.com/marketplace/actions/cache-restore)
+should be used in this case.
 
 ## Getting go version from the go.mod file
 
