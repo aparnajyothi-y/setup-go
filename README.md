@@ -239,7 +239,7 @@ jobs:
 ```
 
 > If there are several builds on the same repo it might make sense to create a cache in one build and use it in the
-others. The action [actions/cache/restore](https://github.com/marketplace/actions/cache-restore)
+others. The action [actions/cache/restore](https://github.com/actions/cache/tree/main/restore#only-restore-cache)
 should be used in this case.
 
 ## Getting go version from the go.mod file
